@@ -1,8 +1,0 @@
-# script to compile a program with ROOT and MGDO libraries, position independent
-#!/bin/bash
-#
-rm -f $FILELOC/loopOverList $FILELOC/currentPlot $FILELOC/tier1Browser
-rootcling -f $FILELOC/tier1BrowserDict.cxx `mgdo-config --cflags` `clhep-config --include` -c $FILELOC/tier1Browser.h $FILELOC/tier1BrowserLinkDef.h
-c++-4.9  -I. `root-config --cflags` `clhep-config --include` `mgdo-config --cflags` $FILELOC/tier1Browser.cxx $FILELOC/tier1BrowserDict.cxx -o $FILELOC/tier1browser `root-config --glibs` -lSpectrum `clhep-config --libs` `mgdo-config --libs`
-c++ -Wall -I. `root-config --cflags` `clhep-config --include` `mgdo-config --cflags` $FILELOC/selectEvents.cc -o $FILELOC/selectEvents `root-config --libs` -lSpectrum `clhep-config --libs` `mgdo-config --libs`
-c++ -Wall -I. `root-config --cflags` `clhep-config --include` `mgdo-config --cflags` $FILELOC/currentPlot.cc -o $FILELOC/currentPlot `root-config --libs` -lSpectrum `clhep-config --libs` `mgdo-config --libs`

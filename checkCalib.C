@@ -56,7 +56,10 @@ void perform( TFile *file0 , TFile *file1 , double m , double q , bool subtr ) {
     spectrum->SetYTitle("Counts");
     //spectrum->SetStats(kFALSE);
 
-    if (subtr==false) spectrum->Draw();
+    if (subtr==false) {
+        spectrum->GetYaxis()->SetRangeUser(0,300);
+        spectrum->Draw();
+    }
 
     // peak analyzer
     TSpectrum analyzer( 8 , 2 );
@@ -109,16 +112,21 @@ void perform( TFile *file0 , TFile *file1 , double m , double q , bool subtr ) {
     if (subtr==true) peakTl->Draw("SAME");
 
     // compute FWHM
-    int bin1 = peakTl->FindFirstBinAbove(peakTl->GetMaximum()/2);
-    int bin2 = peakTl->FindLastBinAbove(peakTl->GetMaximum()/2);
-    cout << bin1 << "   " << bin2 << endl;
-    cout << peakTl->GetXaxis()->GetBinCenter(bin2) << "   " << peakTl->GetXaxis()->GetBinCenter(bin1) << endl;
+    int bin1 = peakTl->FindFirstBinAbove(peakTl->GetMaximum()*1./2);
+    int bin2 = peakTl->FindLastBinAbove(peakTl->GetMaximum()*1./2);
+    //cout << bin1 << "   " << bin2 << endl;
+    //cout << peakTl->GetXaxis()->GetBinCenter(bin2) << "   " << peakTl->GetXaxis()->GetBinCenter(bin1) << endl;
     cout << "FWHM: " << peakTl->GetBinCenter(bin2) - peakTl->GetBinCenter(bin1) << endl;
 
     // compute FWTM
-    bin1 = peakTl->FindFirstBinAbove(peakTl->GetMaximum()/10);
-    bin2 = peakTl->FindLastBinAbove(peakTl->GetMaximum()/10);
-    cout << "FWTM: " << peakTl->GetBinCenter(bin2) - peakTl->GetBinCenter(bin1) << endl << endl;
-    
+    bin1 = peakTl->FindFirstBinAbove(peakTl->GetMaximum()*1./10);
+    bin2 = peakTl->FindLastBinAbove(peakTl->GetMaximum()*1./10);
+    cout << "FWTM: " << peakTl->GetBinCenter(bin2) - peakTl->GetBinCenter(bin1) << endl;
+
+    // compute FWFM
+    bin1 = peakTl->FindFirstBinAbove(peakTl->GetMaximum()*1./50);
+    bin2 = peakTl->FindLastBinAbove(peakTl->GetMaximum()*1./50);
+    cout << "FWFM: " << peakTl->GetBinCenter(bin2) - peakTl->GetBinCenter(bin1) << endl << endl;
+ 
     return;
 }
