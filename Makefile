@@ -17,18 +17,24 @@ EXEC = tier1browser selectEvents currentPlot
 all : $(EXEC)
 
 selectEvents : selectEvents.cc
-	$(CC) $(ALLFLAGS) -o $@ $< $(ALLLIBS)
+	mkdir -p bin && \
+	$(CC) $(ALLFLAGS) -o bin/$@ $< $(ALLLIBS)
 
 currentPlot : currentPlot.cc
-	$(CC) $(ROOTFLAGS) -o $@ $< $(ROOTLIBS)
+	mkdir -p bin && \
+	$(CC) $(ROOTFLAGS) -o bin/$@ $< $(ROOTLIBS)
 
 tier1browser : tier1Browser.cxx tier1Browser.h tier1BrowserDict.cxx
-	$(CC)-4.9 $(ALLFLAGS) -I. -o $@ $< tier1BrowserDict.cxx $(ALLLIBS)   
+	mkdir -p bin && \
+	$(CC)-4.9 $(ALLFLAGS) -I. -o bin/$@ $< lib/tier1BrowserDict.cxx $(ALLLIBS)   
 
 tier1BrowserDict.cxx : tier1Browser.h tier1BrowserLinkDef.h
-	rootcling -f $@ $(MGDOFLAGS) $(CLHEPFLAGS) -c $^ 
+	mkdir -p lib && \
+	cd lib && \
+	rootcling -f $@ $(MGDOFLAGS) $(CLHEPFLAGS) -c ../tier1Browser.h ../tier1BrowserLinkDef.h; \
+	cd ..
 
-.PHONY : clean
+.PHONY : all clean
 
 clean : 
-	rm -rf $(EXEC) tier1BrowserDict.cxx tier1BrowserDict_rdict.pcm
+	rm -rf bin lib
