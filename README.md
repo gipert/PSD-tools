@@ -37,6 +37,8 @@ Installation:
 ------------
 
 Simply run
+
     make
+
 to produce all the executables. You will need the MGDO, CLHEP and  ROOT libraries. Tested on Arch Linux with gcc v6.2.1
 and v4.9. Take a look to the Makefile and modify it according to your setup.
