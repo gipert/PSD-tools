@@ -6,6 +6,28 @@ Contents:
 
 The package provides three executables: 
 * `tier1browser` is a basic waveform browser with a GUI (ROOT libraries) which
-allows also to mark events included in a `TEventList` object provided by the user. Useful to verify the goodness of a
+allows also to mark events included in a `TEventList` object provided by the user. Useful to verify the efficiency of a
 selection filter.
-* `selectEvents` helps to select events that 
+* `selectEvents` helps to select tier1 events (selection stored into a `TEventList` object) with data coming from the
+  GELATIO analysis.
+* `currentPlot` computes the efficiency in neglecting the MSE events in the ...peak setting a cut on the near ...peak
+  and provides a fancy output.
+
+Instructions to use the tools can be retriven with the `--help` option. the `filelist` file has to be formatted in the
+following manner:
+
+    0.3456  -0.7865 1   // parameters for the energy calibration (m,q) and channel where data are stored
+    tier1_data_0.root   // tier1 data files
+    tier1_data_1.root   // ...
+    ...
+    tier1_data_n.root
+    tier2_data.root     // tier2 data file
+    list.root           // ROOT file with the TEventList object
+
+Installation:
+------------
+
+Simply run
+    make
+to produce all the executables. You will need the MGDO, CLHEP and  ROOT libraries. Tested on Arch Linux with gcc v6.2.1
+and v4.9. Take a look to the Makefile.
