@@ -42,6 +42,11 @@ void peakAnalysis( string filename2 , string filenamelist ) {
 
     cout << "###########################" << endl << endl;
    
+	if ( peaks.size() < 6 ) { 
+		cout << "ERROR: Not enough peaks found, try to modify TSpectrum parameters.\n\n";
+		return;
+	}
+
     ofstream file("calib.txt");
 
     file << "// calibration"                                     << endl
