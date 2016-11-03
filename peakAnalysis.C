@@ -26,7 +26,7 @@ void peakAnalysis( string filename2 , string filenamelist ) {
     TSpectrum analyzer( 8 , 2 );
         // arg1: max number of peaks
         // arg2: resolution between peaks
-    analyzer.Search( spectrum , 2 , "" , 0.003);
+    analyzer.Search( spectrum , 2 , "" , 0.0025);
         // arg2: sigma of the searched peaks
         // arg3: options
         // arg4: peaks with amplitude less than threshold*highest_peak are discarded
@@ -55,8 +55,8 @@ void peakAnalysis( string filename2 , string filenamelist ) {
          << peaks.at(1) << "\t1512.700 // 212Bi"                 << endl
          << peaks.at(2) << "\t1592.515 // 208Tl (double escape)" << endl
          << peaks.at(3) << "\t1620.738 // 212Bi"                 << endl
-         << peaks.at(4) << "\t2103.513 // 208Tl (single escape)" << endl
-         << peaks.at(5) << "\t2614.511 // 208Tl";
+         << peaks.at(5) << "\t2103.513 // 208Tl (single escape)" << endl
+         << peaks.at(6) << "\t2614.511 // 208Tl";
 
     return;
 }

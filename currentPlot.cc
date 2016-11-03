@@ -2,6 +2,7 @@
 #include<fstream>
 #include<vector>
 #include<sstream>
+#include<omp.h>
 
 // ROOT
 #include<TFile.h>
@@ -110,33 +111,46 @@ int main( int argc , char** argv ) {
         AEplotBi.GetYaxis()->SetTitle("counts");
     
     // Fill with data
-    cout << "Filling the histograms..." << endl;
+    cout << "Filling the histograms... " << flush;
     int N = currentTree->GetEntries();
     double Ec; // calibrated energy
     double E1min = 1591.5;
     double E1max = 1593.5;
     double E2min = 1619.7;
     double E2max = 1621.7;
+
+	double start = omp_get_wtime();
+
+//#pragma omp parallel for shared(plot,AEplot,AEplotBi) firstprivate(currentTree,energyTree,list,E,A)
     for ( int i = 0 ; i < N ; i++ ) {
 
+//#pragma omp critical
+{
         currentTree->GetEntry(i);
         energyTree->GetEntry(i);
-        
+}       
         if ( list->Contains(i) ) {
-            Ec = E->at(ch)*m + q;
             
+			Ec = E->at(ch)*m + q;
+//#pragma omp critical
             plot.Fill( Ec , A->at(ch) / E->at(ch) );
-            if ( Ec > E1min && Ec < E1max ) {         // Energy selection DEP
+            
+			if ( Ec > E1min && Ec < E1max ) {         // Energy selection DEP
                 //plot.Fill( Ec , A->at(ch) / E->at(ch) );
+//#pragma omp critical
                 AEplot.Fill( A->at(ch) / E->at(ch) );
             }
             
             if ( Ec > E2min && Ec < E2max ) {         // Energy selection MSE
                 //plot.Fill( Ec , A->at(ch) / E->at(ch) );
+//#pragma omp critical
                 AEplotBi.Fill( A->at(ch) / E->at(ch) );
             }
         }
     }
+
+	double time = omp_get_wtime() - start;
+	cout << "Took " << time << " seconds." << endl;
 
     // Compute the integral function of AEplot and AEplotBi
     cout << "Computing the integral function..." << endl;
@@ -197,7 +211,7 @@ int main( int argc , char** argv ) {
     lineAE_3.Draw();
     lineAE_4.Draw();
 
-    // integral funcions
+    // integral functions
     can.cd(3);
     gPad->SetGrid();
     perc.Draw("AC");
@@ -246,6 +260,20 @@ int main( int argc , char** argv ) {
     can.cd(2);
     gPad->SetGrid();
     //gPad->SetLogy();
+
+	// compute FWHM
+	int bin1 = AEplot.FindFirstBinAbove(AEplot.GetMaximum()*1./2);
+	int bin2 = AEplot.FindLastBinAbove(AEplot.GetMaximum()*1./2);
+	float FWHM = AEplot.GetBinCenter(bin2) - AEplot.GetBinCenter(bin1);
+	
+	stringstream sssig;
+	string textsig;
+	sssig << FWHM << scientific;
+	sssig >> textsig;
+	textsig = "FWHM = " + textsig;
+	TText textSig( 0.30 , 400 , textsig.c_str() );
+	textSig.SetTextAlign(12);
+
     AEplot.Rebin(rebin);
     AEplot.Draw();
     
@@ -258,6 +286,7 @@ int main( int argc , char** argv ) {
     histFill.SetFillStyle(3001);
     histFill.SetFillColor(kBlue);
     histFill.Draw("SAME");
+	textSig.Draw("SAME");
     
     // MSE
     can.cd(4);
@@ -280,6 +309,10 @@ int main( int argc , char** argv ) {
     listOfFiles.at(listOfFiles.size()-2) += ".pdf";
     can.SaveAs( listOfFiles.at(listOfFiles.size()-2).c_str() );
        
+	//TCanvas * can2d = new TCanvas("can2d","can2d",1);
+	//can2d->cd();
+	//plot.Draw("COLZ");
+
     // RUN!
     app.Run(kTRUE);
     

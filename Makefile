@@ -12,29 +12,29 @@ MGDOLIBS  = $(shell mgdo-config --libs)
 CLHEPLIBS = $(shell clhep-config --libs)
 ALLLIBS   = $(ROOTLIBS) $(MGDOLIBS) $(CLHEPLIBS)
 
-EXEC = tier1browser selectEvents currentPlot
+EXEC = bin/tier1browser bin/selectEvents bin/currentPlot
 
 all : $(EXEC)
 
-selectEvents : selectEvents.cc
+bin/selectEvents : selectEvents.cc
 	mkdir -p bin && \
-	$(CC) $(ALLFLAGS) -o bin/$@ $< $(ALLLIBS)
+	$(CC) $(ALLFLAGS) -o $@ $< $(ALLLIBS)
 
-currentPlot : currentPlot.cc
+bin/currentPlot : currentPlot.cc
 	mkdir -p bin && \
-	$(CC) $(ROOTFLAGS) -o bin/$@ $< $(ROOTLIBS)
+	$(CC) $(ROOTFLAGS) -o $@ $< $(ROOTLIBS) -fopenmp -Ofast
 
-tier1browser : tier1Browser.cxx tier1Browser.h tier1BrowserDict.cxx
+bin/tier1browser : tier1Browser.cxx lib/tier1BrowserDict.cxx
 	mkdir -p bin && \
-	$(CC)-4.9 $(ALLFLAGS) -I. -o bin/$@ $< lib/tier1BrowserDict.cxx $(ALLLIBS)   
+	$(CC)-4.9 $(ALLFLAGS) -I. -o $@ $< lib/tier1BrowserDict.cxx $(ALLLIBS)   
 
-tier1BrowserDict.cxx : tier1Browser.h tier1BrowserLinkDef.h
+lib/tier1BrowserDict.cxx : tier1Browser.h tier1BrowserLinkDef.h
 	mkdir -p lib && \
 	cd lib && \
-	rootcling -f $@ $(MGDOFLAGS) $(CLHEPFLAGS) -c ../tier1Browser.h ../tier1BrowserLinkDef.h; \
+	rootcling -f tier1BrowserDict.cxx $(MGDOFLAGS) $(CLHEPFLAGS) -c ../tier1Browser.h ../tier1BrowserLinkDef.h; \
 	cd ..
 
 .PHONY : all clean
 
 clean : 
-	rm -rf bin lib
+	rm -rf bin/* lib/*

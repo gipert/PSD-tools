@@ -57,9 +57,9 @@ void plotY() {
     can->cd(1);
     gPad->SetGrid();
 
-    FWHM->Draw("APC");
-    FWTM->Draw("PCSAME");
-    FWFM->Draw("PCSAME");
+    FWHM->Draw("AP");
+    FWTM->Draw("PSAME");
+    FWFM->Draw("PSAME");
 	
 	TLegend * leg = new TLegend(0.24,0.77,0.42,0.88);
 	leg->SetTextAlign(22);
@@ -71,8 +71,8 @@ void plotY() {
 
     can->cd(2);
 	gPad->SetGrid();
-    ratioTH->Draw("APC");
-    ratioFH->Draw("PCSAME");
+    ratioTH->Draw("AP");
+    ratioFH->Draw("PSAME");
   
 	TLine * lineTH = new TLine( ratioTH->GetXaxis()->GetXmin() , 1.82 , ratioTH->GetXaxis()->GetXmax() , 1.82 );
 	TLine * lineFH = new TLine( ratioTH->GetXaxis()->GetXmin() , 2.38 , ratioTH->GetXaxis()->GetXmax() , 2.38 );
