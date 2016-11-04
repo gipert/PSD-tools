@@ -138,9 +138,9 @@ int main( int argc , char** argv ) {
     // Help message
 	if ( argc == 2 && strcmp( argv[1] , "--help" ) == 0 ) {
         cout << endl
-             << "Event browser for tier1 data tree."                  << endl
+             << "Event browser for tier1 data tree. Good events are in RED" << endl
 		     << endl
-             << "Usage:   analysis [filelist] [OPTIONS]"              << endl
+             << "Usage:   analysis [filelist] [OPTIONS]"               << endl
 		     << "Options: --help: display this help message and fExit" << endl
              << endl;
 		return 0;

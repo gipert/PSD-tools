@@ -31,7 +31,7 @@ int main( int argc , char** argv ) {
              << "\t          - The binning used for drawing the two histograms on the right is not the" << endl
              << "\t            binning used in the analysis."                                           << endl
              << endl
-		     << "Usage:   currentPlot [filelist] [yAxis_lenght] [zAxis_lenght] [cut[%]]"                << endl
+		     << "Usage:   currentPlot [filelist] [yAxis_min] [yAxis_max] [zAxis_lenght] [cut[%]]"       << endl
 		     << "Options: --help:       display this help message and exit"                             << endl
              << endl;
 		return 0;
@@ -39,13 +39,15 @@ int main( int argc , char** argv ) {
 
     cout << "Reading the input..." << endl;
     // Retrieving arguments
-    stringstream ssy, ssz , ssc;
-    double yUp, zUp, percCut;
-    ssy << argv[2];
+    stringstream ssym, ssy, ssz , ssc;
+    double yMin, yUp, zUp, percCut;
+	ssym << argv[2];
+	ssym >> yMin;
+    ssy << argv[3];
     ssy >> yUp;
-    ssz << argv[3];
+    ssz << argv[4];
     ssz >> zUp;
-    ssc << argv[4];
+    ssc << argv[5];
     ssc >> percCut;
 
     // Retrieve file names
@@ -90,22 +92,23 @@ int main( int argc , char** argv ) {
 //    TTree * masterTree = (TTree*)infile.Get("tree");
     
     // A/E vs E plot
-    TH2D plot( "currentplot" , "currentplot" , 8000 , 1000 , 3500 , 1000 , 0 , yUp );
+    TH2D plot( "currentplot" , "currentplot" , 12000 , 1000 , 3500 , 10000 , 0 , 10 );
         plot.SetStats(kFALSE);
         plot.SetTitle(listOfFiles.at(listOfFiles.size()-2).c_str());
         plot.GetXaxis()->SetTitle("Energy [keV]");
         plot.GetYaxis()->SetTitle("A/E");
-        plot.GetXaxis()->SetRangeUser(1520,1720);
+		plot.GetYaxis()->SetRangeUser(yMin,yUp);
+        plot.GetXaxis()->SetRangeUser(1560,1660);
         plot.GetZaxis()->SetRangeUser(0,zUp);
     
     // A/E histogram for DEP
-    TH1D AEplot( "AEplot" , "Double escape peak @ 1592 keV" , 1000 , yUp/10 , yUp/4 );
+    TH1D AEplot( "AEplot" , "Double escape peak @ 1592 keV" , 1000 , yMin , yUp );
         AEplot.SetStats(kFALSE);
         AEplot.GetXaxis()->SetTitle("A/E");
         AEplot.GetYaxis()->SetTitle("counts");
     
     // A/E histogram for MSE (Bi)
-    TH1D AEplotBi( "AEplotBi" , "212Bi peak @ 1620 keV" , 1000 , yUp/10 , yUp/4 );
+    TH1D AEplotBi( "AEplotBi" , "212Bi peak @ 1620 keV" , 1000 , yMin , yUp );
         AEplotBi.SetStats(kFALSE);
         AEplotBi.GetXaxis()->SetTitle("A/E");
         AEplotBi.GetYaxis()->SetTitle("counts");
@@ -156,7 +159,7 @@ int main( int argc , char** argv ) {
     cout << "Computing the integral function..." << endl;
     double totEv = AEplot.Integral();
     double totEvBi = AEplotBi.Integral();
-    double cut = yUp/10;
+    double cut = yMin;
     double intg = 0;
     double intgBi = 0;
     double savedCut = 0;
@@ -174,7 +177,7 @@ int main( int argc , char** argv ) {
     for ( int i = 0 ; i < npoints ; i++ ) {
         perc.SetPoint( i , cut , 100-intg );    // cut goes from max to min
         percBi.SetPoint( i , cut , intgBi );    // cut goes from min to max
-        cut   += (yUp)*3/(20*npoints);
+        cut   += (yUp-yMin)/npoints;
         intg   = AEplot.Integral(0,AEplot.FindBin(cut))*100/totEv;
         intgBi = AEplotBi.Integral(0,AEplotBi.FindBin(cut))*100/totEvBi;
         if ( 100-intg > percCut-1 && 100-intg < percCut+1 ) {savedCut = cut; savedIntgBi = intgBi;}
@@ -201,10 +204,10 @@ int main( int argc , char** argv ) {
 //    masterTree->Draw( "GEMDCurrentPSA_1.A[1]/GEMDEnergyGauss_1.energy[1]:GEMDEnergyGauss_1.energy[1]*0.321159-0.76>>hist(1000,1000,3500,1000,0,1.5)" , "" , "COLZ" );
    
     // lines on AE vs E plot
-    TLine lineAE_1( E1min , plot.GetYaxis()->GetXmin() , E1min , plot.GetYaxis()->GetXmax() ); 
-    TLine lineAE_2( E1max , plot.GetYaxis()->GetXmin() , E1max , plot.GetYaxis()->GetXmax() );
-    TLine lineAE_3( E2min , plot.GetYaxis()->GetXmin() , E2min , plot.GetYaxis()->GetXmax() );
-    TLine lineAE_4( E2max , plot.GetYaxis()->GetXmin() , E2max , plot.GetYaxis()->GetXmax() );
+    TLine lineAE_1( E1min , yMin , E1min , yUp ); 
+    TLine lineAE_2( E1max , yMin , E1max , yUp );
+    TLine lineAE_3( E2min , yMin , E2min , yUp );
+    TLine lineAE_4( E2max , yMin , E2max , yUp );
 
     lineAE_1.Draw();
     lineAE_2.Draw();
@@ -268,11 +271,13 @@ int main( int argc , char** argv ) {
 	
 	stringstream sssig;
 	string textsig;
-	sssig << FWHM << scientific;
+	sssig << scientific << FWHM;
 	sssig >> textsig;
 	textsig = "FWHM = " + textsig;
-	TText textSig( 0.30 , 400 , textsig.c_str() );
-	textSig.SetTextAlign(12);
+	TText textSig( 0.15 , 0.85 , textsig.c_str() );
+	textSig.SetNDC(kTRUE);
+	//TText textSig( 0.30 , 400 , textsig.c_str() );
+	textSig.SetTextAlign(13);
 
     AEplot.Rebin(rebin);
     AEplot.Draw();

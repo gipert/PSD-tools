@@ -23,14 +23,17 @@ int main( int argc , char** argv ) {
     // Help message
 	if ( argc == 2 && strcmp( argv[1] , "--help" ) == 0 ) {
         cout << endl
-             << "The program selects the good events in tier1 and produces" << endl 
-             << "a TEventList object stored in list.root."                  << endl
+             << "The program selects the good events in tier1 and stores"   << endl 
+             << "them in a TEventList object saved in list.root."           << endl
 		     << endl
-             << "Usage:   selectEvents [filelist]"                          << endl
+             << "Usage:   selectEvents [filelist] [sugmaCut]"               << endl
 		     << "Options: --help:       display this help message and exit" << endl
              << endl;
 		return 0;
-	} 
+	}
+
+	string sigmaCutStr = argc > 2 ? argv[2] : "20";
+	int sigmaCut = stoi(sigmaCutStr);
 
     cout << "Reading the input..." << endl;
     
@@ -52,7 +55,7 @@ int main( int argc , char** argv ) {
  
     // Check for baseline problems and for failures from GELATIO
     cout << "Check for baseline problems and for failures from GELATIO..." << endl;
-    masterTree->Draw( ">>listofselected" , Form("(GEMDBaseline_1.restoredWfBaselineSigma[%i]<50) && (GEMDQuality_1.isgood[%i] == 1)" , ch , ch ) );
+    masterTree->Draw( ">>listofselected" , Form("(GEMDBaseline_1.restoredWfBaselineSigma[%i]<%i) && (GEMDQuality_1.isgood[%i] == 1)" , ch , sigmaCut , ch ) );
     // isGood = 1 means GOOD event
     TEventList * listOfSelected = (TEventList*)gDirectory->Get("listofselected");
     cout << "Done, selected: " << listOfSelected->GetN() << "/" << masterTree->GetEntries() << endl;

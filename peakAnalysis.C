@@ -15,7 +15,7 @@ void peakAnalysis( string filename2 , string filenamelist ) {
     can->cd();
 
     tree->SetEventList(listsel);
-    tree->Draw("GEMDEnergyGauss_1.energy[1]>>htemp(10000,10000,10000)");
+    tree->Draw("GEMDEnergyGauss_1.energy[0]>>htemp(10000,10000,10000)");
     TH1D * spectrum = (TH1D*)gDirectory->Get("htemp");
 
     spectrum->SetTitle("Energy Spectrum");
